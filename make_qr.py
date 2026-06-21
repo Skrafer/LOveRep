@@ -120,45 +120,10 @@ def main() -> None:
     rounded(draw, (panel_x, panel_y, panel_x + panel_size, panel_y + panel_size), 58, fill=(255, 250, 242, 255), outline=(247, 213, 141, 245), width=6)
     rounded(draw, (panel_x + 22, panel_y + 22, panel_x + panel_size - 22, panel_y + panel_size - 22), 42, outline=(238, 209, 146, 145), width=2)
 
-    qr_x = panel_x + panel_pad
-    qr_y = panel_y + panel_pad
-    dark = (8, 18, 17, 255)
-    teal_dark = (13, 52, 48, 255)
-    gold_dark = (112, 77, 28, 255)
-
-    finder_size = 7
-    matrix_size = len(matrix)
-    finder_origins = [(0, 0), (matrix_size - finder_size, 0), (0, matrix_size - finder_size)]
-
-    def in_finder(row, col):
-        return any(fr <= row < fr + finder_size and fc <= col < fc + finder_size for fr, fc in finder_origins)
-
-    for row, values in enumerate(matrix):
-        for col, value in enumerate(values):
-            if not value or in_finder(row, col):
-                continue
-            x = qr_x + col * module
-            y = qr_y + row * module
-            mix = (row + col) / (matrix_size * 2)
-            fill = dark if mix < 0.58 else teal_dark
-            rounded(draw, (x + 1, y + 1, x + module - 1, y + module - 1), 4, fill=fill)
-
-    for fr, fc in finder_origins:
-        x = qr_x + fc * module
-        y = qr_y + fr * module
-        size = finder_size * module
-        rounded(draw, (x, y, x + size, y + size), 20, fill=dark)
-        rounded(draw, (x + module, y + module, x + size - module, y + size - module), 14, fill=(255, 250, 242, 255))
-        rounded(draw, (x + module * 2, y + module * 2, x + size - module * 2, y + size - module * 2), 12, fill=gold_dark)
-        rounded(draw, (x + module * 3, y + module * 3, x + size - module * 3, y + size - module * 3), 8, fill=dark)
-
-    heart_cx = panel_x + panel_size // 2
-    heart_cy = panel_y + panel_size // 2
-    heart_r = 32
-    draw.ellipse((heart_cx - 50, heart_cy - 50, heart_cx + 50, heart_cy + 50), fill=(255, 250, 242, 245), outline=(247, 213, 141, 220), width=4)
-    draw.ellipse((heart_cx - heart_r, heart_cy - 18 - heart_r // 2, heart_cx, heart_cy + 14), fill=(240, 167, 164, 255))
-    draw.ellipse((heart_cx, heart_cy - 18 - heart_r // 2, heart_cx + heart_r, heart_cy + 14), fill=(240, 167, 164, 255))
-    draw.polygon([(heart_cx - heart_r, heart_cy - 3), (heart_cx + heart_r, heart_cy - 3), (heart_cx, heart_cy + 44)], fill=(240, 167, 164, 255))
+    qr_img = qr.make_image(fill_color="#07100f", back_color="#fffaf2").convert("RGB")
+    qr_img = qr_img.resize((qr_size, qr_size), Image.Resampling.NEAREST)
+    canvas.paste(qr_img, (panel_x + panel_pad, panel_y + panel_pad))
+    draw = ImageDraw.Draw(canvas, "RGBA")
 
     medal_y = panel_y + panel_size + 92
     draw.ellipse((canvas_w / 2 - 58, medal_y - 58, canvas_w / 2 + 58, medal_y + 58), fill=(6, 18, 17, 245), outline=(247, 213, 141, 220), width=4)
