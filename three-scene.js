@@ -10,8 +10,6 @@ async function start() {
     return;
   }
 
-  const isCompact = window.innerWidth < 680;
-
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true,
@@ -19,306 +17,244 @@ async function start() {
     powerPreference: "high-performance",
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-  camera.position.set(0, 0, 7.3);
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+  camera.position.set(0, 0, 7.4);
 
-  const group = new THREE.Group();
-  scene.add(group);
+  const atelier = new THREE.Group();
+  scene.add(atelier);
 
-  const portalGroup = new THREE.Group();
-  scene.add(portalGroup);
+  const relic = new THREE.Group();
+  atelier.add(relic);
 
-  const key = new THREE.PointLight(0xf7d58d, 2.2, 12);
-  key.position.set(3.2, 2.1, 4.8);
+  const glass = new THREE.Group();
+  relic.add(glass);
+
+  const key = new THREE.PointLight(0xffe5ac, 2.8, 13);
+  key.position.set(3.3, 2.4, 4.8);
   scene.add(key);
 
-  const fill = new THREE.PointLight(0x70d8c5, 1.8, 10);
-  fill.position.set(-3.8, -1.2, 3.4);
-  scene.add(fill);
+  const roseLight = new THREE.PointLight(0xf0a7a4, 1.9, 10);
+  roseLight.position.set(-3.1, 0.4, 3.8);
+  scene.add(roseLight);
 
-  const rim = new THREE.DirectionalLight(0xf0a7a4, 1.2);
-  rim.position.set(0, 4, 2);
-  scene.add(rim);
+  const tealLight = new THREE.PointLight(0x70d8c5, 1.55, 11);
+  tealLight.position.set(-2.8, -2.2, 3.2);
+  scene.add(tealLight);
 
-  const starCount = isCompact ? 140 : 240;
-  const starPositions = new Float32Array(starCount * 3);
-  const starColors = new Float32Array(starCount * 3);
-  const gold = new THREE.Color(0xf7d58d);
-  const teal = new THREE.Color(0x70d8c5);
-  const rose = new THREE.Color(0xf0a7a4);
+  scene.add(new THREE.AmbientLight(0xfff2cb, 0.24));
 
-  for (let i = 0; i < starCount; i += 1) {
-    const i3 = i * 3;
-    const radius = 2.4 + Math.random() * 5.8;
-    const angle = Math.random() * Math.PI * 2;
-    starPositions[i3] = Math.cos(angle) * radius;
-    starPositions[i3 + 1] = (Math.random() - 0.5) * 5.2;
-    starPositions[i3 + 2] = -1.6 - Math.random() * 3.2 + Math.sin(angle) * 0.8;
-
-    const color = Math.random() > 0.62 ? gold : Math.random() > 0.48 ? teal : rose;
-    starColors[i3] = color.r;
-    starColors[i3 + 1] = color.g;
-    starColors[i3 + 2] = color.b;
-  }
-
-  const starGeometry = new THREE.BufferGeometry();
-  starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
-  starGeometry.setAttribute("color", new THREE.BufferAttribute(starColors, 3));
-
-  const starfield = new THREE.Points(
-    starGeometry,
-    new THREE.PointsMaterial({
-      size: isCompact ? 0.028 : 0.022,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.54,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    }),
-  );
-  portalGroup.add(starfield);
-
-  const portalRings = [];
-  const portalMaterials = [
-    new THREE.MeshBasicMaterial({
-      color: 0xf7d58d,
-      transparent: true,
-      opacity: 0.18,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-    new THREE.MeshBasicMaterial({
-      color: 0x70d8c5,
-      transparent: true,
-      opacity: 0.11,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-    new THREE.MeshBasicMaterial({
-      color: 0xf0a7a4,
-      transparent: true,
-      opacity: 0.1,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-  ];
-
-  for (let i = 0; i < 3; i += 1) {
-    const portalRing = new THREE.Mesh(
-      new THREE.TorusGeometry(1.85 + i * 0.34, 0.006 + i * 0.002, 10, 132),
-      portalMaterials[i],
-    );
-    portalRing.rotation.set(1.16 + i * 0.12, -0.28 + i * 0.18, i * 0.68);
-    portalRing.userData = { speed: 0.0032 + i * 0.0016, pulse: 1 + i * 0.55 };
-    portalRings.push(portalRing);
-    portalGroup.add(portalRing);
-  }
-
-  const constellationGeometry = new THREE.BufferGeometry();
-  const constellationPositions = [];
-  const constellationCount = isCompact ? 18 : 28;
-  for (let i = 0; i < constellationCount; i += 1) {
-    const angle = (i / constellationCount) * Math.PI * 2;
-    const next = angle + Math.PI * 2 / constellationCount;
-    const r1 = 1.35 + Math.random() * 0.95;
-    const r2 = 1.35 + Math.random() * 0.95;
-    constellationPositions.push(
-      Math.cos(angle) * r1,
-      Math.sin(angle * 1.7) * 0.74,
-      Math.sin(angle) * 0.62,
-      Math.cos(next) * r2,
-      Math.sin(next * 1.7) * 0.74,
-      Math.sin(next) * 0.62,
-    );
-  }
-  constellationGeometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(constellationPositions, 3),
-  );
-  const constellation = new THREE.LineSegments(
-    constellationGeometry,
-    new THREE.LineBasicMaterial({
-      color: 0xfff2cb,
-      transparent: true,
-      opacity: 0.12,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-  );
-  portalGroup.add(constellation);
-
-  const ringMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xfff1d0,
-    roughness: 0.18,
-    metalness: 0.16,
-    transmission: 0.35,
-    thickness: 0.9,
-    clearcoat: 1,
-    clearcoatRoughness: 0.12,
-    emissive: 0x2b1a12,
-    emissiveIntensity: 0.12,
-  });
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(1.25, 0.08, 180, 14, 2, 5),
-    ringMaterial,
-  );
-  ring.rotation.set(0.8, -0.25, 0.35);
-  group.add(ring);
-
-  const heartShape = new THREE.Shape();
-  heartShape.moveTo(0, 0.52);
-  heartShape.bezierCurveTo(-0.92, 1.18, -1.72, 0.42, -1.1, -0.48);
-  heartShape.bezierCurveTo(-0.78, -0.94, -0.16, -1.22, 0, -1.42);
-  heartShape.bezierCurveTo(0.16, -1.22, 0.78, -0.94, 1.1, -0.48);
-  heartShape.bezierCurveTo(1.72, 0.42, 0.92, 1.18, 0, 0.52);
-
-  const heartGeometry = new THREE.ExtrudeGeometry(heartShape, {
-    depth: 0.18,
-    bevelEnabled: true,
-    bevelSegments: isCompact ? 8 : 14,
-    bevelSize: 0.06,
-    bevelThickness: 0.06,
-    curveSegments: isCompact ? 28 : 42,
-  });
-  heartGeometry.center();
-
-  const heartMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xf2a1aa,
-    roughness: 0.09,
-    metalness: 0.02,
-    transmission: 0.62,
-    thickness: 0.95,
-    clearcoat: 1,
-    clearcoatRoughness: 0.06,
-    transparent: true,
-    opacity: 0.88,
-    emissive: 0x5e151b,
-    emissiveIntensity: 0.28,
-  });
-
-  const heart = new THREE.Mesh(heartGeometry, heartMaterial);
-  heart.position.set(-0.06, 0.02, 0.62);
-  heart.rotation.set(0.08, -0.18, 0.04);
-  heart.scale.setScalar(0.001);
-  group.add(heart);
-
-  const heartCore = new THREE.Mesh(
-    new THREE.SphereGeometry(0.18, isCompact ? 18 : 28, isCompact ? 12 : 18),
-    new THREE.MeshBasicMaterial({
-      color: 0xffd9c9,
-      transparent: true,
-      opacity: 0.42,
-      blending: THREE.AdditiveBlending,
-    }),
-  );
-  heartCore.position.copy(heart.position);
-  heartCore.position.z += 0.05;
-  group.add(heartCore);
-
-  const halo = new THREE.Mesh(
-    new THREE.TorusGeometry(0.7, 0.012, 12, 96),
-    new THREE.MeshBasicMaterial({
-      color: 0xf7d58d,
-      transparent: true,
-      opacity: 0.34,
-      blending: THREE.AdditiveBlending,
-    }),
-  );
-  halo.position.copy(heart.position);
-  halo.rotation.set(1.2, -0.36, 0.24);
-  group.add(halo);
-
-  const satellites = [];
-  const satelliteGeometry = new THREE.SphereGeometry(0.025, 12, 8);
-  const satelliteMaterial = new THREE.MeshBasicMaterial({
-    color: 0xfff2cb,
-    transparent: true,
-    opacity: 0.72,
-    blending: THREE.AdditiveBlending,
-  });
-
-  for (let i = 0; i < (isCompact ? 5 : 8); i += 1) {
-    const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial.clone());
-    satellite.userData = {
-      angle: (i / (isCompact ? 5 : 8)) * Math.PI * 2,
-      radius: 0.48 + Math.random() * 0.22,
-      speed: 0.42 + Math.random() * 0.18,
-    };
-    satellites.push(satellite);
-    group.add(satellite);
-  }
-
-  const gemMaterial = new THREE.MeshPhysicalMaterial({
+  const goldMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xf7d58d,
-    roughness: 0.16,
-    metalness: 0.18,
-    transmission: 0.28,
-    thickness: 0.7,
+    roughness: 0.18,
+    metalness: 0.42,
     clearcoat: 1,
-    clearcoatRoughness: 0.08,
-    transparent: true,
-    opacity: 0.82,
-    emissive: 0x3a2a08,
+    clearcoatRoughness: 0.1,
+    emissive: 0x2c1c06,
     emissiveIntensity: 0.18,
   });
 
-  const gem = new THREE.Mesh(new THREE.IcosahedronGeometry(0.34, 1), gemMaterial);
-  gem.position.set(isCompact ? 1.42 : -1.42, isCompact ? -0.86 : -1.22, 0.18);
-  gem.rotation.set(0.3, 0.7, 0.2);
-  group.add(gem);
-
-  const gemHalo = new THREE.Mesh(
-    new THREE.TorusGeometry(0.48, 0.01, 12, 92),
-    new THREE.MeshBasicMaterial({
-      color: 0xf7d58d,
-      transparent: true,
-      opacity: 0.22,
-      blending: THREE.AdditiveBlending,
-    }),
-  );
-  gemHalo.position.copy(gem.position);
-  gemHalo.rotation.set(1.1, 0.2, -0.4);
-  group.add(gemHalo);
-
-  const shardMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x9deee1,
-    roughness: 0.24,
-    metalness: 0.05,
-    transmission: 0.42,
-    thickness: 0.6,
-    clearcoat: 1,
+  const softGoldMaterial = new THREE.MeshBasicMaterial({
+    color: 0xfff2cb,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.22,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
   });
 
-  const shards = [];
-  const shardGeometry = new THREE.OctahedronGeometry(0.13, 0);
+  const roseGlass = new THREE.MeshPhysicalMaterial({
+    color: 0xf4a6b0,
+    roughness: 0.06,
+    metalness: 0.02,
+    transmission: 0.58,
+    thickness: 1.1,
+    clearcoat: 1,
+    clearcoatRoughness: 0.04,
+    transparent: true,
+    opacity: 0.9,
+    emissive: 0x5e151b,
+    emissiveIntensity: 0.34,
+  });
 
-  const shardCount = isCompact ? 24 : 38;
+  const heartShape = new THREE.Shape();
+  heartShape.moveTo(0, 0.55);
+  heartShape.bezierCurveTo(-0.96, 1.22, -1.8, 0.42, -1.16, -0.52);
+  heartShape.bezierCurveTo(-0.82, -1.0, -0.18, -1.28, 0, -1.48);
+  heartShape.bezierCurveTo(0.18, -1.28, 0.82, -1.0, 1.16, -0.52);
+  heartShape.bezierCurveTo(1.8, 0.42, 0.96, 1.22, 0, 0.55);
 
-  for (let i = 0; i < shardCount; i += 1) {
-    const shard = new THREE.Mesh(shardGeometry, shardMaterial.clone());
-    const angle = (i / shardCount) * Math.PI * 2;
-    const radius = 1.85 + Math.random() * 1.35;
-    shard.position.set(
-      Math.cos(angle) * radius,
-      Math.sin(angle * 1.7) * 0.62 + (Math.random() - 0.5) * 1.7,
-      Math.sin(angle) * 0.65 + (Math.random() - 0.5) * 0.65,
-    );
-    shard.scale.setScalar(0.45 + Math.random() * 1.8);
-    shard.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-    shard.userData = {
-      angle,
-      radius,
-      speed: 0.18 + Math.random() * 0.34,
-      lift: Math.random() * Math.PI * 2,
-    };
-    shards.push(shard);
-    group.add(shard);
+  const heartGeometry = new THREE.ExtrudeGeometry(heartShape, {
+    depth: 0.28,
+    bevelEnabled: true,
+    bevelSegments: 18,
+    bevelSize: 0.065,
+    bevelThickness: 0.085,
+    curveSegments: 52,
+  });
+  heartGeometry.center();
+
+  const heart = new THREE.Mesh(heartGeometry, roseGlass);
+  heart.position.set(0, 0.2, 0.42);
+  heart.scale.setScalar(0.46);
+  glass.add(heart);
+
+  const innerGlow = new THREE.Mesh(
+    new THREE.SphereGeometry(0.34, 32, 20),
+    new THREE.MeshBasicMaterial({
+      color: 0xffd8cc,
+      transparent: true,
+      opacity: 0.28,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  innerGlow.position.set(0, 0.14, 0.55);
+  glass.add(innerGlow);
+
+  const locket = new THREE.Group();
+  relic.add(locket);
+
+  const mainRing = new THREE.Mesh(new THREE.TorusGeometry(1.36, 0.035, 16, 160), goldMaterial);
+  mainRing.rotation.set(1.18, -0.18, 0.34);
+  locket.add(mainRing);
+
+  const sideRing = new THREE.Mesh(new THREE.TorusGeometry(1.08, 0.014, 12, 148), softGoldMaterial);
+  sideRing.rotation.set(1.34, 0.62, 1.55);
+  locket.add(sideRing);
+
+  const backRing = new THREE.Mesh(new THREE.TorusGeometry(1.66, 0.01, 12, 180), softGoldMaterial.clone());
+  backRing.material.opacity = 0.14;
+  backRing.rotation.set(1.44, -0.48, -0.52);
+  locket.add(backRing);
+
+  const crownMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xfff2cb,
+    roughness: 0.14,
+    metalness: 0.5,
+    clearcoat: 1,
+    emissive: 0x3a2505,
+    emissiveIntensity: 0.2,
+  });
+  const crownGeometry = new THREE.SphereGeometry(0.035, 16, 10);
+  const crown = [];
+  for (let i = 0; i < 18; i += 1) {
+    const bead = new THREE.Mesh(crownGeometry, crownMaterial);
+    const angle = (i / 18) * Math.PI * 2;
+    bead.position.set(Math.cos(angle) * 1.36, Math.sin(angle) * 1.36, 0.02);
+    bead.scale.setScalar(i % 3 === 0 ? 1.45 : 1);
+    mainRing.add(bead);
+    crown.push(bead);
   }
+
+  const pedestal = new THREE.Group();
+  relic.add(pedestal);
+
+  const base = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.92, 1.14, 0.16, 96),
+    new THREE.MeshPhysicalMaterial({
+      color: 0x19302d,
+      roughness: 0.28,
+      metalness: 0.18,
+      clearcoat: 0.8,
+      emissive: 0x051514,
+      emissiveIntensity: 0.22,
+    }),
+  );
+  base.position.y = -1.26;
+  base.rotation.x = 0.05;
+  pedestal.add(base);
+
+  const baseTrim = new THREE.Mesh(new THREE.TorusGeometry(0.96, 0.018, 12, 124), goldMaterial);
+  baseTrim.position.y = -1.16;
+  baseTrim.rotation.x = Math.PI / 2;
+  pedestal.add(baseTrim);
+
+  const datePlaqueTexture = makeDateTexture(THREE);
+  const plaque = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.42, 0.34),
+    new THREE.MeshBasicMaterial({
+      map: datePlaqueTexture,
+      transparent: true,
+      opacity: 0.92,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  plaque.position.set(0, -0.94, 0.92);
+  plaque.rotation.x = -0.12;
+  relic.add(plaque);
+
+  const ribbonMaterial = new THREE.MeshBasicMaterial({
+    color: 0x70d8c5,
+    transparent: true,
+    opacity: 0.18,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+
+  const ribbons = [];
+  const ribbonSpecs = [
+    { color: 0x70d8c5, opacity: 0.16, phase: 0 },
+    { color: 0xf7d58d, opacity: 0.16, phase: 1.6 },
+    { color: 0xf0a7a4, opacity: 0.12, phase: 3.2 },
+  ];
+
+  for (const spec of ribbonSpecs) {
+    const points = [];
+    for (let i = 0; i < 80; i += 1) {
+      const t = i / 79;
+      const angle = t * Math.PI * 2 + spec.phase;
+      points.push(
+        new THREE.Vector3(
+          Math.cos(angle) * (1.52 + Math.sin(t * Math.PI * 4) * 0.12),
+          -0.25 + Math.sin(angle * 1.7) * 0.84,
+          Math.sin(angle) * 0.48,
+        ),
+      );
+    }
+    const curve = new THREE.CatmullRomCurve3(points, true);
+    const material = ribbonMaterial.clone();
+    material.color.setHex(spec.color);
+    material.opacity = spec.opacity;
+    const ribbon = new THREE.Mesh(new THREE.TubeGeometry(curve, 150, 0.006, 8, true), material);
+    ribbon.userData = { speed: 0.003 + spec.phase * 0.0006 };
+    ribbons.push(ribbon);
+    relic.add(ribbon);
+  }
+
+  const dustCount = window.innerWidth < 680 ? 90 : 160;
+  const dustPositions = new Float32Array(dustCount * 3);
+  const dustColors = new Float32Array(dustCount * 3);
+  const colorOptions = [new THREE.Color(0xfff2cb), new THREE.Color(0x70d8c5), new THREE.Color(0xf0a7a4)];
+  for (let i = 0; i < dustCount; i += 1) {
+    const i3 = i * 3;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 1.7 + Math.random() * 2.4;
+    dustPositions[i3] = Math.cos(angle) * radius;
+    dustPositions[i3 + 1] = (Math.random() - 0.5) * 3.2;
+    dustPositions[i3 + 2] = Math.sin(angle) * 1.25 - 0.6;
+    const color = colorOptions[i % colorOptions.length];
+    dustColors[i3] = color.r;
+    dustColors[i3 + 1] = color.g;
+    dustColors[i3 + 2] = color.b;
+  }
+  const dustGeometry = new THREE.BufferGeometry();
+  dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3));
+  dustGeometry.setAttribute("color", new THREE.BufferAttribute(dustColors, 3));
+  const dust = new THREE.Points(
+    dustGeometry,
+    new THREE.PointsMaterial({
+      size: 0.025,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  atelier.add(dust);
 
   let pointerX = 0;
   let pointerY = 0;
@@ -330,14 +266,10 @@ async function start() {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 
-    group.position.x = width < 680 ? 0 : 1.8;
-    group.position.y = width < 680 ? 1.72 : -0.05;
-    group.scale.setScalar(width < 680 ? 0.46 : 1.05);
-
-    portalGroup.position.x = width < 680 ? 0 : 1.55;
-    portalGroup.position.y = width < 680 ? 1.7 : -0.03;
-    portalGroup.position.z = -0.34;
-    portalGroup.scale.setScalar(width < 680 ? 0.48 : 1.08);
+    const compact = width < 680;
+    atelier.position.x = compact ? 0 : 1.68;
+    atelier.position.y = compact ? 1.64 : -0.03;
+    atelier.scale.setScalar(compact ? 0.54 : 1.08);
   }
 
   window.addEventListener("resize", resize);
@@ -352,61 +284,47 @@ async function start() {
 
   function animate() {
     const time = clock.getElapsedTime();
-    const intro = Math.min(1, time / 1.6);
+    const intro = Math.min(1, time / 1.7);
     const easeIntro = 1 - Math.pow(1 - intro, 3);
 
-    group.rotation.y += (pointerX * 0.18 - group.rotation.y) * 0.035;
-    group.rotation.x += (-pointerY * 0.1 - group.rotation.x) * 0.035;
-    portalGroup.rotation.y += (pointerX * 0.08 - portalGroup.rotation.y) * 0.025;
-    portalGroup.rotation.x += (-pointerY * 0.04 - portalGroup.rotation.x) * 0.025;
+    atelier.rotation.y += (pointerX * 0.09 - atelier.rotation.y) * 0.035;
+    atelier.rotation.x += (-pointerY * 0.05 - atelier.rotation.x) * 0.035;
+    atelier.scale.multiplyScalar(1);
 
     if (!reducedMotion) {
-      starfield.rotation.y += 0.0008;
-      starfield.rotation.z -= 0.00035;
-      constellation.rotation.z -= 0.0018;
-      constellation.material.opacity = (0.08 + Math.sin(time * 1.3) * 0.035) * easeIntro;
+      relic.rotation.y = Math.sin(time * 0.28) * 0.08;
+      relic.rotation.x = Math.sin(time * 0.34) * 0.025;
+      relic.position.y = Math.sin(time * 1.05) * 0.035;
 
-      for (const portalRing of portalRings) {
-        portalRing.rotation.z += portalRing.userData.speed;
-        portalRing.rotation.x += portalRing.userData.speed * 0.35;
-        portalRing.material.opacity = (0.1 + Math.sin(time * portalRing.userData.pulse) * 0.035) * easeIntro;
+      heart.rotation.y += 0.006;
+      heart.rotation.z = Math.sin(time * 0.88) * 0.035;
+      heart.scale.setScalar((0.46 + Math.sin(time * 1.8) * 0.018) * easeIntro);
+
+      innerGlow.scale.setScalar((0.86 + Math.sin(time * 2.4) * 0.12) * easeIntro);
+      innerGlow.material.opacity = (0.22 + Math.sin(time * 2.1) * 0.08) * easeIntro;
+
+      mainRing.rotation.z += 0.0034;
+      sideRing.rotation.z -= 0.0048;
+      backRing.rotation.z += 0.0022;
+
+      plaque.position.y = -0.94 + Math.sin(time * 1.2) * 0.018;
+      plaque.material.opacity = (0.78 + Math.sin(time * 1.6) * 0.08) * easeIntro;
+
+      base.rotation.y += 0.002;
+      baseTrim.rotation.z += 0.003;
+
+      for (const ribbon of ribbons) {
+        ribbon.rotation.y += ribbon.userData.speed;
+        ribbon.rotation.z += ribbon.userData.speed * 0.55;
       }
 
-      ring.rotation.x += 0.0032;
-      ring.rotation.z += 0.0025;
-      heart.rotation.y += 0.0045;
-      heart.scale.setScalar((0.38 + Math.sin(time * 1.8) * 0.02) * easeIntro);
-      heartCore.scale.setScalar((0.85 + Math.sin(time * 2.4) * 0.1) * easeIntro);
-      heartCore.material.opacity = (0.32 + Math.sin(time * 2.1) * 0.08) * easeIntro;
-      halo.rotation.z -= 0.004;
-      halo.scale.setScalar(0.7 + easeIntro * 0.3);
-      halo.material.opacity = (0.22 + Math.sin(time * 1.6) * 0.08) * easeIntro;
-      gem.rotation.x += 0.004;
-      gem.rotation.y -= 0.006;
-      gem.position.y += Math.sin(time * 1.4) * 0.0018;
-      gemHalo.rotation.z += 0.005;
-      gemHalo.material.opacity = (0.16 + Math.sin(time * 1.7) * 0.06) * easeIntro;
-    }
+      for (let i = 0; i < crown.length; i += 1) {
+        crown[i].scale.setScalar((i % 3 === 0 ? 1.45 : 1) + Math.sin(time * 2 + i) * 0.12);
+      }
 
-    for (const satellite of satellites) {
-      const data = satellite.userData;
-      const orbit = data.angle + time * data.speed;
-      satellite.position.set(
-        heart.position.x + Math.cos(orbit) * data.radius,
-        heart.position.y + Math.sin(orbit * 1.3) * 0.22,
-        heart.position.z + Math.sin(orbit) * 0.32,
-      );
-      satellite.material.opacity = (0.45 + Math.sin(time * 2 + data.angle) * 0.22) * easeIntro;
-    }
-
-    for (const shard of shards) {
-      const data = shard.userData;
-      const orbit = data.angle + time * data.speed * 0.22;
-      shard.position.x = Math.cos(orbit) * data.radius;
-      shard.position.z = Math.sin(orbit) * 0.82;
-      shard.position.y += Math.sin(time * data.speed + data.lift) * 0.0028;
-      shard.rotation.x += 0.003 + data.speed * 0.001;
-      shard.rotation.y += 0.004 + data.speed * 0.001;
+      dust.rotation.y -= 0.0009;
+      dust.rotation.z += 0.0004;
+      dust.material.opacity = (0.36 + Math.sin(time * 1.1) * 0.08) * easeIntro;
     }
 
     renderer.render(scene, camera);
@@ -414,6 +332,57 @@ async function start() {
   }
 
   animate();
+}
+
+function makeDateTexture(THREE) {
+  const textureCanvas = document.createElement("canvas");
+  textureCanvas.width = 1024;
+  textureCanvas.height = 256;
+  const ctx = textureCanvas.getContext("2d");
+
+  const gradient = ctx.createLinearGradient(0, 0, textureCanvas.width, textureCanvas.height);
+  gradient.addColorStop(0, "rgba(255, 242, 203, 0.1)");
+  gradient.addColorStop(0.44, "rgba(247, 213, 141, 0.26)");
+  gradient.addColorStop(1, "rgba(112, 216, 197, 0.1)");
+  ctx.fillStyle = gradient;
+  roundRect(ctx, 44, 42, 936, 172, 42);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255, 242, 203, 0.72)";
+  ctx.lineWidth = 3;
+  roundRect(ctx, 54, 52, 916, 152, 36);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 250, 242, 0.64)";
+  ctx.font = "700 38px Manrope, Arial, sans-serif";
+  ctx.letterSpacing = "6px";
+  ctx.textAlign = "center";
+  ctx.fillText("ENGRAVED ON MY HEART", 512, 92);
+
+  const textGradient = ctx.createLinearGradient(250, 110, 774, 174);
+  textGradient.addColorStop(0, "#fff2cb");
+  textGradient.addColorStop(0.48, "#f7d58d");
+  textGradient.addColorStop(1, "#f0a7a4");
+  ctx.fillStyle = textGradient;
+  ctx.font = "700 76px Georgia, serif";
+  ctx.shadowColor = "rgba(247, 213, 141, 0.42)";
+  ctx.shadowBlur = 28;
+  ctx.fillText("17.06.2026", 512, 168);
+
+  const texture = new THREE.CanvasTexture(textureCanvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
 }
 
 start();
