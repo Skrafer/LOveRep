@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Для тебя</title>
+    <meta
+      name="description"
+      content="Анимированная страница-сюрприз, открывающаяся по QR-коду."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="intro" id="intro" aria-hidden="true">
+      <div class="intro__ring intro__ring--outer"></div>
+      <div class="intro__ring intro__ring--inner"></div>
+      <div class="intro__heart"></div>
+      <div class="intro__line"></div>
+    </div>
+
+    <main class="scene" aria-label="Романтичная открытка">
+      <img class="scene__backdrop" src="assets/hero-bg.png" alt="" />
+      <canvas id="aura3d" aria-hidden="true"></canvas>
+      <canvas id="stardust" aria-hidden="true"></canvas>
+      <div class="frame" aria-hidden="true">
+        <span class="frame__light"></span>
+        <span class="frame__corner frame__corner--tl"></span>
+        <span class="frame__corner frame__corner--tr"></span>
+        <span class="frame__corner frame__corner--bl"></span>
+        <span class="frame__corner frame__corner--br"></span>
+      </div>
+
+      <section class="message" aria-live="polite">
+        <p class="message__eyebrow">private constellation</p>
+        <h1>
+          Ты — моя
+          <span>красивая<br />случайность</span>
+        </h1>
+        <p class="message__text">
+          которая стала для меня важнее любых планов. Я сделал эту маленькую
+          вселенную, чтобы ты открыла её и почувствовала: тебя правда выбирают.
+        </p>
+        <p class="message__signature">не на сегодня. надолго.</p>
+        <button class="message__button" type="button" id="reveal" aria-label="Открыть послание">
+          <span class="message__button-glow"></span>
+          <span class="message__button-text">открыть</span>
+        </button>
+      </section>
+
+      <div class="phrase-rail" aria-live="polite">
+        <span id="phraseText">ты появляешься — и мир становится тише</span>
+      </div>
+
+      <div class="secret" id="secret" hidden>
+        <button class="secret__close" type="button" id="closeSecret" aria-label="Вернуться">↩</button>
+        <div class="gold-heart" aria-hidden="true"></div>
+        <p>Ты не просто красивая.</p>
+        <span>
+          в тебе есть то редкое тепло, рядом с которым человек становится
+          спокойнее, честнее и счастливее. Если бы мне нужно было выбрать один
+          момент, который хочется беречь, я бы снова выбрал тот, где есть ты.
+        </span>
+      </div>
+    </main>
+
+    <script type="module" src="three-scene.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
