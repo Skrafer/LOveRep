@@ -2,6 +2,8 @@
 
 Private Constellation static QR landing page for GitHub Pages.
 
+It also includes a small real backend in `backend/server.py`. GitHub Pages can host the frontend, while the backend can be deployed separately to Render/VPS/Railway or run locally.
+
 ## GitHub Pages
 
 The site is prepared for:
@@ -29,3 +31,19 @@ Folder: /root
 ```
 
 GitHub will publish the site at `https://skrafer.github.io/LOveRep/`.
+
+## Backend
+
+Run the dynamic version locally:
+
+```powershell
+python backend/server.py
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8080/
+```
+
+The API stores open events in `backend/data/events.jsonl`.

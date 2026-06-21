@@ -5,6 +5,8 @@ const reveal = document.querySelector("#reveal");
 const secret = document.querySelector("#secret");
 const closeSecret = document.querySelector("#closeSecret");
 const phraseText = document.querySelector("#phraseText");
+const liveSignal = document.querySelector("#liveSignal");
+const signalCount = document.querySelector("#signalCount");
 
 const phrases = [
   "ты появляешься — и мир становится тише",
@@ -21,6 +23,70 @@ let particles = [];
 let pointer = { x: 0.5, y: 0.46 };
 let phraseIndex = 0;
 let opened = false;
+let backendLive = false;
+let memoryCount = Number.parseInt(window.localStorage.getItem("love-memory-count") || "1", 10);
+
+function formatCount(value) {
+  return String(Math.max(1, value)).padStart(2, "0");
+}
+
+function apiUrl(path) {
+  const base = window.LOVE_API_BASE || "";
+  return `${base}${path}`;
+}
+
+function setMemoryCount(value) {
+  memoryCount = Math.max(1, value || 1);
+  window.localStorage.setItem("love-memory-count", String(memoryCount));
+  if (signalCount) signalCount.textContent = formatCount(memoryCount);
+}
+
+async function pingBackend() {
+  if (!liveSignal || !signalCount) return;
+
+  setMemoryCount(memoryCount);
+
+  try {
+    const response = await window.fetch(apiUrl("/api/health"), {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("backend is offline");
+    const data = await response.json();
+    backendLive = true;
+    liveSignal.classList.remove("is-offline");
+    setMemoryCount(data.opens || memoryCount);
+  } catch {
+    backendLive = false;
+    liveSignal.classList.add("is-offline");
+  }
+}
+
+async function recordMemory(eventName) {
+  if (!backendLive) {
+    setMemoryCount(memoryCount + 1);
+    return;
+  }
+
+  try {
+    const response = await window.fetch(apiUrl("/api/heartbeat"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        event: eventName,
+        at: new Date().toISOString(),
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+      }),
+    });
+    if (!response.ok) throw new Error("heartbeat failed");
+    const data = await response.json();
+    setMemoryCount(data.opens || memoryCount + 1);
+  } catch {
+    backendLive = false;
+    liveSignal?.classList.add("is-offline");
+    setMemoryCount(memoryCount + 1);
+  }
+}
 
 document.body.classList.add("is-loading");
 
@@ -96,6 +162,7 @@ function openSecret() {
   secret.hidden = false;
   document.body.classList.add("is-open");
   reveal.querySelector(".message__button-text").textContent = "еще";
+  recordMemory("open-secret");
   burst();
 }
 
@@ -137,3 +204,4 @@ function burst() {
 
 resize();
 draw();
+pingBackend();
