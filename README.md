@@ -1,15 +1,23 @@
-# Private Constellation
+# LOveRep
 
-Static QR landing page for GitHub Pages.
+Private Constellation static QR landing page for GitHub Pages.
 
-## Publish on GitHub Pages
+## GitHub Pages
 
-1. Create an empty GitHub repository.
-2. Push this folder to the repository.
-3. In GitHub: Settings -> Pages -> Deploy from a branch -> `main` -> `/root`.
-4. Open the Pages URL and regenerate `qr-code.png` with that URL:
+The site is prepared for:
 
-```powershell
-python make_qr.py "https://YOUR_USERNAME.github.io/YOUR_REPOSITORY/"
+```text
+https://skrafer.github.io/LOveRep/
 ```
 
+The included `qr-code.png` already points to that URL.
+
+If you need to regenerate the QR:
+
+```powershell
+python make_qr.py "https://skrafer.github.io/LOveRep/"
+```
+
+## Publishing
+
+The repository includes `.github/workflows/pages.yml`, so GitHub Actions can publish the static site to GitHub Pages after pushing to `main`.
