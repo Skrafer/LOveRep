@@ -8,6 +8,8 @@ const phraseText = document.querySelector("#phraseText");
 const liveSignal = document.querySelector("#liveSignal");
 const signalCount = document.querySelector("#signalCount");
 
+const MEMORY_KEY = "love-memory-count-v2";
+
 const phrases = [
   "ты появляешься — и мир становится тише",
   "в тебе есть свет, который не хочется объяснять",
@@ -24,7 +26,7 @@ let pointer = { x: 0.5, y: 0.46 };
 let phraseIndex = 0;
 let opened = false;
 let backendLive = false;
-let memoryCount = Number.parseInt(window.localStorage.getItem("love-memory-count") || "1", 10);
+let memoryCount = Number.parseInt(window.localStorage.getItem(MEMORY_KEY) || "1", 10);
 
 function formatCount(value) {
   return String(Math.max(1, value)).padStart(2, "0");
@@ -37,7 +39,7 @@ function apiUrl(path) {
 
 function setMemoryCount(value) {
   memoryCount = Math.max(1, value || 1);
-  window.localStorage.setItem("love-memory-count", String(memoryCount));
+  window.localStorage.setItem(MEMORY_KEY, String(memoryCount));
   if (signalCount) signalCount.textContent = formatCount(memoryCount);
 }
 

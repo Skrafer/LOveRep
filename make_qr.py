@@ -7,7 +7,28 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_URL = "https://example.com/replace-this-with-your-public-link"
+DEFAULT_URL = "https://skrafer.github.io/LOveRep/"
+FONTS = Path("C:/Windows/Fonts")
+SCALE = 2
+
+
+def font(name: str, size: int) -> ImageFont.FreeTypeFont:
+    try:
+        return ImageFont.truetype(str(FONTS / name), size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def rounded(draw: ImageDraw.ImageDraw, box, radius, fill=None, outline=None, width=1):
+    draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
+
+
+def glow_layer(size, shapes):
+    layer = Image.new("RGBA", size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(layer)
+    for shape in shapes:
+        draw.ellipse(shape["box"], fill=shape["fill"])
+    return layer.filter(Image.Resampling.LANCZOS)
 
 
 def main() -> None:
@@ -16,120 +37,149 @@ def main() -> None:
     qr = qrcode.QRCode(
         version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=14,
+        box_size=16,
         border=4,
     )
     qr.add_data(url)
     qr.make(fit=True)
-
     matrix = qr.get_matrix()
-    module = 12
+
+    module = 18
     qr_size = len(matrix) * module
-    panel_pad = 34
+    panel_pad = 54
     panel_size = qr_size + panel_pad * 2
-    canvas_w = panel_size + 92
-    canvas_h = panel_size + 396
+    canvas_w = 1480
+    canvas_h = 2060
 
     canvas = Image.new("RGB", (canvas_w, canvas_h), "#07100f")
-    draw = ImageDraw.Draw(canvas)
-
+    pixels = canvas.load()
     for y in range(canvas_h):
         for x in range(canvas_w):
             nx = x / canvas_w
             ny = y / canvas_h
-            glow = max(0, 1 - math.hypot(nx - 0.5, ny - 0.34) * 1.7)
-            r = int(7 + glow * 26)
-            g = int(16 + glow * 32)
-            b = int(15 + glow * 28)
-            canvas.putpixel((x, y), (r, g, b))
+            center = max(0, 1 - math.hypot(nx - 0.5, ny - 0.38) * 1.55)
+            side = max(0, 1 - math.hypot(nx - 0.18, ny - 0.84) * 2.5)
+            r = int(6 + center * 31 + side * 8)
+            g = int(15 + center * 33 + side * 20)
+            b = int(14 + center * 29 + side * 18)
+            pixels[x, y] = (r, g, b)
 
-    for i in range(42):
+    draw = ImageDraw.Draw(canvas, "RGBA")
+
+    for i in range(160):
         angle = i * 2.399963229728653
-        radius = 0.08 + (i % 17) / 18
-        x = int(canvas_w * (0.5 + math.cos(angle) * radius * 0.48))
-        y = int(canvas_h * (0.5 + math.sin(angle) * radius * 0.42))
-        size = 1 if i % 4 else 2
-        color = "#d8bd76" if i % 3 else "#8fb8ad"
-        draw.ellipse((x - size, y - size, x + size, y + size), fill=color)
+        radius = 0.03 + (i % 55) / 58
+        x = int(canvas_w * (0.5 + math.cos(angle) * radius * 0.58))
+        y = int(canvas_h * (0.48 + math.sin(angle) * radius * 0.5))
+        size = 2 if i % 5 else 4
+        fill = (247, 213, 141, 150) if i % 3 else (112, 216, 197, 118)
+        draw.ellipse((x - size, y - size, x + size, y + size), fill=fill)
 
-    card = (28, 28, canvas_w - 28, canvas_h - 28)
-    draw.rounded_rectangle(card, radius=26, outline="#d8bd76", width=2)
-    draw.rounded_rectangle((38, 38, canvas_w - 38, canvas_h - 38), radius=20, outline="#2d6058", width=1)
-    draw.rounded_rectangle((48, 48, canvas_w - 48, canvas_h - 48), radius=16, outline="#193e39", width=1)
+    draw.ellipse((-260, 980, 430, 1670), outline=(112, 216, 197, 38), width=3)
+    draw.ellipse((1010, 110, 1680, 790), outline=(247, 213, 141, 42), width=3)
+    draw.arc((130, 110, canvas_w - 130, 1120), 196, 344, fill=(247, 213, 141, 70), width=3)
+    draw.arc((210, 240, canvas_w - 210, 1280), 28, 206, fill=(112, 216, 197, 55), width=2)
 
-    corner = 58
-    for sx, sy in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
-        x0 = 58 if sx == 1 else canvas_w - 58
-        y0 = 58 if sy == 1 else canvas_h - 58
-        draw.line((x0, y0, x0 + sx * corner, y0), fill="#d8bd76", width=2)
-        draw.line((x0, y0, x0, y0 + sy * corner), fill="#d8bd76", width=2)
-        draw.line((x0 + sx * 12, y0 + sy * 12, x0 + sx * (corner - 10), y0 + sy * 12), fill="#315f58", width=1)
-        draw.line((x0 + sx * 12, y0 + sy * 12, x0 + sx * 12, y0 + sy * (corner - 10)), fill="#315f58", width=1)
+    card = (70, 70, canvas_w - 70, canvas_h - 70)
+    rounded(draw, card, 54, outline=(247, 213, 141, 210), width=4)
+    rounded(draw, (90, 90, canvas_w - 90, canvas_h - 90), 44, outline=(112, 216, 197, 86), width=2)
+    rounded(draw, (114, 114, canvas_w - 114, canvas_h - 114), 34, outline=(255, 250, 242, 38), width=1)
+
+    for x0, y0, sx, sy in [
+        (126, 126, 1, 1),
+        (canvas_w - 126, 126, -1, 1),
+        (126, canvas_h - 126, 1, -1),
+        (canvas_w - 126, canvas_h - 126, -1, -1),
+    ]:
+        draw.line((x0, y0, x0 + sx * 122, y0), fill=(247, 213, 141, 220), width=4)
+        draw.line((x0, y0, x0, y0 + sy * 122), fill=(247, 213, 141, 220), width=4)
+        draw.line((x0 + sx * 24, y0 + sy * 24, x0 + sx * 98, y0 + sy * 24), fill=(112, 216, 197, 130), width=2)
+        draw.line((x0 + sx * 24, y0 + sy * 24, x0 + sx * 24, y0 + sy * 98), fill=(112, 216, 197, 130), width=2)
+
+    badge_font = font("arialbd.ttf", 28)
+    tiny_font = font("segoeui.ttf", 24)
+    title_font = font("georgiab.ttf", 72)
+    script_font = font("segoepr.ttf", 48)
+    small_font = font("segoeui.ttf", 32)
+    date_font = font("georgiab.ttf", 38)
+
+    badge_y = 154
+    rounded(draw, (canvas_w / 2 - 270, badge_y - 32, canvas_w / 2 + 270, badge_y + 32), 32, fill=(255, 250, 242, 18), outline=(247, 213, 141, 150), width=2)
+    draw.line((170, badge_y, canvas_w / 2 - 305, badge_y), fill=(112, 216, 197, 90), width=2)
+    draw.line((canvas_w / 2 + 305, badge_y, canvas_w - 170, badge_y), fill=(112, 216, 197, 90), width=2)
+    draw.text((canvas_w / 2, badge_y), "PRIVATE CONSTELLATION", anchor="mm", fill=(247, 213, 141, 235), font=badge_font)
 
     panel_x = (canvas_w - panel_size) // 2
-    panel_y = 108
-    panel = (panel_x, panel_y, panel_x + panel_size, panel_y + panel_size)
-    shadow = (panel_x + 8, panel_y + 10, panel_x + panel_size + 8, panel_y + panel_size + 10)
-    draw.rounded_rectangle(shadow, radius=24, fill="#040707")
-    draw.rounded_rectangle(panel, radius=24, fill="#fffaf2", outline="#f0d694", width=3)
-    draw.rounded_rectangle((panel_x + 10, panel_y + 10, panel_x + panel_size - 10, panel_y + panel_size - 10), radius=18, outline="#f6e4b5", width=1)
+    panel_y = 282
+    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    shadow_draw = ImageDraw.Draw(shadow)
+    rounded(shadow_draw, (panel_x + 22, panel_y + 28, panel_x + panel_size + 22, panel_y + panel_size + 28), 58, fill=(0, 0, 0, 135))
+    canvas.alpha_composite(shadow.filter(Image.Resampling.LANCZOS)) if canvas.mode == "RGBA" else None
+    draw = ImageDraw.Draw(canvas, "RGBA")
+
+    rounded(draw, (panel_x, panel_y, panel_x + panel_size, panel_y + panel_size), 58, fill=(255, 250, 242, 255), outline=(247, 213, 141, 245), width=6)
+    rounded(draw, (panel_x + 22, panel_y + 22, panel_x + panel_size - 22, panel_y + panel_size - 22), 42, outline=(238, 209, 146, 145), width=2)
 
     qr_x = panel_x + panel_pad
     qr_y = panel_y + panel_pad
-    dark = "#101817"
-    radius = 4
+    dark = (8, 18, 17, 255)
+    teal_dark = (13, 52, 48, 255)
+    gold_dark = (112, 77, 28, 255)
+
+    finder_size = 7
+    matrix_size = len(matrix)
+    finder_origins = [(0, 0), (matrix_size - finder_size, 0), (0, matrix_size - finder_size)]
+
+    def in_finder(row, col):
+        return any(fr <= row < fr + finder_size and fc <= col < fc + finder_size for fr, fc in finder_origins)
 
     for row, values in enumerate(matrix):
         for col, value in enumerate(values):
-            if not value:
+            if not value or in_finder(row, col):
                 continue
             x = qr_x + col * module
             y = qr_y + row * module
-            draw.rounded_rectangle((x, y, x + module - 1, y + module - 1), radius=radius, fill=dark)
+            mix = (row + col) / (matrix_size * 2)
+            fill = dark if mix < 0.58 else teal_dark
+            rounded(draw, (x + 1, y + 1, x + module - 1, y + module - 1), 4, fill=fill)
 
-    try:
-        title_font = ImageFont.truetype("arialbd.ttf", 34)
-        small_font = ImageFont.truetype("arial.ttf", 19)
-        tiny_font = ImageFont.truetype("arial.ttf", 14)
-    except OSError:
-        title_font = ImageFont.load_default()
-        small_font = ImageFont.load_default()
-        tiny_font = ImageFont.load_default()
+    for fr, fc in finder_origins:
+        x = qr_x + fc * module
+        y = qr_y + fr * module
+        size = finder_size * module
+        rounded(draw, (x, y, x + size, y + size), 20, fill=dark)
+        rounded(draw, (x + module, y + module, x + size - module, y + size - module), 14, fill=(255, 250, 242, 255))
+        rounded(draw, (x + module * 2, y + module * 2, x + size - module * 2, y + size - module * 2), 12, fill=gold_dark)
+        rounded(draw, (x + module * 3, y + module * 3, x + size - module * 3, y + size - module * 3), 8, fill=dark)
 
-    badge = "PRIVATE CONSTELLATION"
-    title = "Сканируй"
-    subtitle = "и открой маленькую вселенную"
-    url_hint = url.replace("https://", "")
-    draw.rounded_rectangle((canvas_w / 2 - 154, 54, canvas_w / 2 + 154, 88), radius=17, outline="#d8bd76", width=1)
-    draw.line((80, 71, canvas_w / 2 - 172, 71), fill="#315f58", width=1)
-    draw.line((canvas_w / 2 + 172, 71, canvas_w - 80, 71), fill="#315f58", width=1)
-    draw.text((canvas_w / 2, 71), badge, anchor="mm", fill="#d8bd76", font=tiny_font)
+    heart_cx = panel_x + panel_size // 2
+    heart_cy = panel_y + panel_size // 2
+    heart_r = 32
+    draw.ellipse((heart_cx - 50, heart_cy - 50, heart_cx + 50, heart_cy + 50), fill=(255, 250, 242, 245), outline=(247, 213, 141, 220), width=4)
+    draw.ellipse((heart_cx - heart_r, heart_cy - 18 - heart_r // 2, heart_cx, heart_cy + 14), fill=(240, 167, 164, 255))
+    draw.ellipse((heart_cx, heart_cy - 18 - heart_r // 2, heart_cx + heart_r, heart_cy + 14), fill=(240, 167, 164, 255))
+    draw.polygon([(heart_cx - heart_r, heart_cy - 3), (heart_cx + heart_r, heart_cy - 3), (heart_cx, heart_cy + 44)], fill=(240, 167, 164, 255))
 
-    medal_cx = canvas_w // 2
-    medal_cy = panel_y + panel_size + 46
-    draw.ellipse((medal_cx - 36, medal_cy - 36, medal_cx + 36, medal_cy + 36), fill="#091210", outline="#315f58", width=1)
-    draw.ellipse((medal_cx - 28, medal_cy - 28, medal_cx + 28, medal_cy + 28), fill="#101817", outline="#d8bd76", width=2)
-    heart_w = 24
-    heart_h = 22
-    draw.ellipse((medal_cx - heart_w // 2, medal_cy - heart_h // 2 - 5, medal_cx, medal_cy + heart_h // 2 - 5), fill="#f7d58d")
-    draw.ellipse((medal_cx, medal_cy - heart_h // 2 - 5, medal_cx + heart_w // 2, medal_cy + heart_h // 2 - 5), fill="#f7d58d")
-    draw.polygon(
-        [
-            (medal_cx - heart_w // 2, medal_cy + 1),
-            (medal_cx + heart_w // 2, medal_cy + 1),
-            (medal_cx, medal_cy + 20),
-        ],
-        fill="#f7d58d",
-    )
+    medal_y = panel_y + panel_size + 92
+    draw.ellipse((canvas_w / 2 - 58, medal_y - 58, canvas_w / 2 + 58, medal_y + 58), fill=(6, 18, 17, 245), outline=(247, 213, 141, 220), width=4)
+    draw.ellipse((canvas_w / 2 - 42, medal_y - 42, canvas_w / 2 + 42, medal_y + 42), outline=(112, 216, 197, 128), width=2)
+    draw.text((canvas_w / 2, medal_y + 2), "♥", anchor="mm", fill=(247, 213, 141, 255), font=font("seguisym.ttf", 54))
 
-    title_y = panel_y + panel_size + 114
-    subtitle_y = panel_y + panel_size + 160
-    draw.text((canvas_w / 2, title_y), title, anchor="mm", fill="#fffaf2", font=title_font)
-    draw.text((canvas_w / 2, subtitle_y), subtitle, anchor="mm", fill="#d8bd76", font=small_font)
-    draw.line((canvas_w / 2 - 120, subtitle_y + 34, canvas_w / 2 + 120, subtitle_y + 34), fill="#315f58", width=1)
-    draw.text((canvas_w / 2, canvas_h - 52), url_hint, anchor="mm", fill="#8fb8ad", font=tiny_font)
+    title_y = medal_y + 132
+    draw.text((canvas_w / 2, title_y), "Сканируй", anchor="mm", fill=(255, 250, 242, 255), font=title_font)
+    draw.text((canvas_w / 2, title_y + 76), "и открой маленькую вселенную", anchor="mm", fill=(247, 213, 141, 238), font=script_font)
 
-    canvas.save(ROOT / "qr-code.png", quality=95)
+    date_y = title_y + 156
+    rounded(draw, (canvas_w / 2 - 245, date_y - 36, canvas_w / 2 + 245, date_y + 36), 26, fill=(255, 250, 242, 18), outline=(247, 213, 141, 130), width=2)
+    draw.text((canvas_w / 2, date_y), "17.06.2026", anchor="mm", fill=(255, 242, 203, 255), font=date_font)
+    draw.text((canvas_w / 2, date_y + 74), "эта дата выбита на моем сердце", anchor="mm", fill=(210, 230, 224, 210), font=small_font)
+
+    url_hint = url.replace("https://", "").rstrip("/")
+    draw.line((canvas_w / 2 - 250, canvas_h - 162, canvas_w / 2 + 250, canvas_h - 162), fill=(112, 216, 197, 90), width=2)
+    draw.text((canvas_w / 2, canvas_h - 108), url_hint, anchor="mm", fill=(143, 184, 173, 220), font=tiny_font)
+
+    canvas.save(ROOT / "qr-code.png", quality=98, optimize=True)
+    canvas.resize((canvas_w // SCALE, canvas_h // SCALE), Image.Resampling.LANCZOS).save(ROOT / "qr-code-preview.png", quality=95, optimize=True)
     (ROOT / "qr-url.txt").write_text(url, encoding="utf-8")
 
 

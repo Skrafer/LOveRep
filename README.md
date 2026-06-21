@@ -13,6 +13,7 @@ https://skrafer.github.io/LOveRep/
 ```
 
 The included `qr-code.png` already points to that URL.
+`qr-code.png` is the high-quality version. `qr-code-preview.png` is a smaller preview for quick viewing.
 
 If you need to regenerate the QR:
 
