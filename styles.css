@@ -76,11 +76,26 @@ body.is-open .frame {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 50% 42%, rgba(240, 167, 164, 0.22), transparent 22rem),
-    radial-gradient(circle at 50% 50%, rgba(247, 213, 141, 0.14), transparent 18rem),
+    radial-gradient(circle at 50% 42%, rgba(247, 213, 141, 0.22), transparent 24rem),
+    radial-gradient(circle at 50% 50%, rgba(240, 167, 164, 0.16), transparent 18rem),
+    radial-gradient(circle at 48% 62%, rgba(112, 216, 197, 0.12), transparent 20rem),
     rgba(4, 8, 8, 0.94);
   pointer-events: none;
-  animation: intro-away 620ms ease 1700ms both;
+  perspective: 1100px;
+  animation: intro-away 820ms ease 2300ms both;
+}
+
+.intro__veil {
+  position: absolute;
+  width: min(820px, 124vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    conic-gradient(from 90deg, transparent, rgba(247, 213, 141, 0.18), transparent 24%, rgba(112, 216, 197, 0.11), transparent 52%, rgba(240, 167, 164, 0.16), transparent 76%),
+    radial-gradient(circle, rgba(255, 250, 242, 0.08), transparent 38%);
+  filter: blur(0.2px);
+  transform: rotateX(70deg) scale(0.6);
+  animation: intro-veil 2300ms cubic-bezier(0.2, 0.86, 0.2, 1) both;
 }
 
 .intro__ring {
@@ -104,6 +119,14 @@ body.is-open .frame {
   animation: intro-ring 1500ms cubic-bezier(0.2, 0.8, 0.2, 1) 160ms both reverse;
 }
 
+.intro__ring--knife {
+  width: min(560px, 86vw);
+  aspect-ratio: 1;
+  border-color: rgba(112, 216, 197, 0.15);
+  transform: rotateX(72deg) rotateZ(18deg);
+  animation: intro-knife 2100ms cubic-bezier(0.2, 0.86, 0.2, 1) both;
+}
+
 .intro__heart {
   position: relative;
   width: 74px;
@@ -113,7 +136,7 @@ body.is-open .frame {
   box-shadow:
     0 0 34px rgba(240, 167, 164, 0.34),
     0 0 72px rgba(247, 213, 141, 0.16);
-  animation: intro-heart 1500ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation: intro-heart 1900ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
 .intro__heart::before,
@@ -142,8 +165,49 @@ body.is-open .frame {
   height: 1px;
   overflow: hidden;
   background: linear-gradient(90deg, transparent, rgba(247, 213, 141, 0.78), transparent);
-  transform: translateY(86px) scaleX(0);
-  animation: intro-line 1500ms ease 240ms both;
+  transform: translateY(112px) scaleX(0);
+  animation: intro-line 1700ms ease 380ms both;
+}
+
+.intro__date {
+  position: absolute;
+  margin-top: 212px;
+  color: transparent;
+  background: linear-gradient(100deg, #fff2cb, var(--gold) 46%, var(--rose));
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 4vw, 2.7rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 42px rgba(247, 213, 141, 0.2);
+  animation: intro-date 1900ms cubic-bezier(0.2, 0.86, 0.2, 1) 240ms both;
+}
+
+.intro__spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #fff2cb;
+  box-shadow:
+    0 0 18px rgba(247, 213, 141, 0.75),
+    0 0 48px rgba(240, 167, 164, 0.28);
+  animation: intro-spark 1900ms ease both;
+}
+
+.intro__spark--one {
+  transform: translate(-164px, -82px);
+}
+
+.intro__spark--two {
+  transform: translate(168px, -18px);
+  animation-delay: 180ms;
+}
+
+.intro__spark--three {
+  transform: translate(38px, 136px);
+  animation-delay: 320ms;
 }
 
 .scene {
@@ -496,6 +560,54 @@ h1 span {
   background: linear-gradient(90deg, rgba(247, 213, 141, 0.68), transparent);
 }
 
+.message__date {
+  position: relative;
+  display: inline-grid;
+  gap: 3px;
+  margin: 22px 0 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(247, 213, 141, 0.34);
+  border-radius: 12px;
+  background:
+    linear-gradient(120deg, rgba(255, 242, 203, 0.16), rgba(255, 242, 203, 0.04) 50%, rgba(240, 167, 164, 0.08)),
+    rgba(3, 6, 6, 0.24);
+  color: rgba(255, 250, 242, 0.72);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 18px 44px rgba(0, 0, 0, 0.22),
+    0 0 32px rgba(247, 213, 141, 0.08);
+  backdrop-filter: blur(16px);
+  animation: date-glow 4.8s ease-in-out infinite;
+}
+
+.message__date::before {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 242, 203, 0.34), transparent);
+  opacity: 0;
+  transform: translateX(-42%);
+  animation: date-sheen 5.4s ease-in-out infinite;
+}
+
+.message__date span {
+  color: transparent;
+  background: linear-gradient(100deg, #fff2cb, var(--gold) 44%, var(--rose));
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-family: var(--serif);
+  font-size: 1.34rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
 .message__text {
   max-width: 520px;
   margin: 30px 0 0;
@@ -804,34 +916,105 @@ body.is-open .phrase-rail {
 @keyframes intro-heart {
   0% {
     opacity: 0;
-    transform: rotate(-45deg) scale(0.42);
+    transform: rotate(-45deg) translateZ(-160px) scale(0.28);
   }
 
   55% {
     opacity: 1;
-    transform: rotate(-45deg) scale(0.84);
+    transform: rotate(-45deg) translateZ(46px) scale(0.92);
   }
 
   100% {
     opacity: 0;
-    transform: rotate(-45deg) scale(1.35);
+    transform: rotate(-45deg) translateZ(160px) scale(1.48);
   }
 }
 
 @keyframes intro-line {
   0% {
     opacity: 0;
-    transform: translateY(86px) scaleX(0);
+    transform: translateY(112px) scaleX(0);
   }
 
   42% {
     opacity: 1;
-    transform: translateY(86px) scaleX(1);
+    transform: translateY(112px) scaleX(1);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(86px) scaleX(1.16);
+    transform: translateY(112px) scaleX(1.16);
+  }
+}
+
+@keyframes intro-veil {
+  0% {
+    opacity: 0;
+    transform: rotateX(76deg) rotateZ(-28deg) scale(0.34);
+  }
+
+  48% {
+    opacity: 1;
+    transform: rotateX(68deg) rotateZ(16deg) scale(0.92);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotateX(64deg) rotateZ(58deg) scale(1.15);
+  }
+}
+
+@keyframes intro-knife {
+  0% {
+    opacity: 0;
+    transform: rotateX(82deg) rotateZ(-44deg) scale(0.4);
+  }
+
+  52% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotateX(72deg) rotateZ(74deg) scale(1.2);
+  }
+}
+
+@keyframes intro-date {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.92);
+    filter: blur(12px);
+  }
+
+  42%,
+  72% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(1.04);
+    filter: blur(10px);
+  }
+}
+
+@keyframes intro-spark {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+
+  45% {
+    opacity: 1;
+    scale: 1;
+  }
+
+  100% {
+    opacity: 0;
+    scale: 2.6;
   }
 }
 
@@ -967,6 +1150,34 @@ body.is-open .phrase-rail {
   }
 }
 
+@keyframes date-glow {
+  50% {
+    border-color: rgba(247, 213, 141, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 20px 54px rgba(0, 0, 0, 0.28),
+      0 0 46px rgba(247, 213, 141, 0.15);
+  }
+}
+
+@keyframes date-sheen {
+  0%,
+  48% {
+    opacity: 0;
+    transform: translateX(-42%);
+  }
+
+  58% {
+    opacity: 0.64;
+  }
+
+  76%,
+  100% {
+    opacity: 0;
+    transform: translateX(42%);
+  }
+}
+
 @keyframes signal-enter {
   from {
     opacity: 0;
@@ -1058,6 +1269,17 @@ body.is-open .phrase-rail {
     font-size: 1.05rem;
   }
 
+  .message__date {
+    margin-top: 14px;
+    padding: 9px 12px;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+  }
+
+  .message__date span {
+    font-size: 1.05rem;
+  }
+
   .message__signature::before {
     right: 0;
     left: 50%;
@@ -1089,10 +1311,11 @@ body.is-open .phrase-rail {
   .heart-date {
     --date-shift: 50%;
     right: 50%;
-    bottom: 82px;
+    bottom: 74px;
     min-width: 158px;
     padding: 10px 12px;
     transform: translateX(var(--date-shift)) rotateX(5deg);
+    opacity: 0.72;
   }
 
   .heart-date::before,

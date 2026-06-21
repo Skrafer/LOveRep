@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Для тебя</title>
     <meta
       name="description"
@@ -14,14 +17,20 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=heart-date-v3" />
   </head>
   <body>
     <div class="intro" id="intro" aria-hidden="true">
+      <div class="intro__veil"></div>
       <div class="intro__ring intro__ring--outer"></div>
       <div class="intro__ring intro__ring--inner"></div>
+      <div class="intro__ring intro__ring--knife"></div>
       <div class="intro__heart"></div>
+      <div class="intro__date">17.06.2026</div>
       <div class="intro__line"></div>
+      <div class="intro__spark intro__spark--one"></div>
+      <div class="intro__spark intro__spark--two"></div>
+      <div class="intro__spark intro__spark--three"></div>
     </div>
 
     <main class="scene" aria-label="Романтичная открытка">
@@ -58,6 +67,10 @@
           вселенную, чтобы ты открыла её и почувствовала: тебя правда выбирают.
         </p>
         <p class="message__signature">не на сегодня. надолго.</p>
+        <p class="message__date">
+          <span>17.06.2026</span>
+          эта дата выбита на моем сердце
+        </p>
         <button class="message__button" type="button" id="reveal" aria-label="Открыть послание">
           <span class="message__button-glow"></span>
           <span class="message__button-text">открыть</span>
@@ -80,7 +93,7 @@
       </div>
     </main>
 
-    <script type="module" src="three-scene.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="three-scene.js?v=heart-relic-v3"></script>
+    <script src="script.js?v=heart-date-v3"></script>
   </body>
 </html>
