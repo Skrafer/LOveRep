@@ -20,4 +20,12 @@ python make_qr.py "https://skrafer.github.io/LOveRep/"
 
 ## Publishing
 
-The repository includes `.github/workflows/pages.yml`, so GitHub Actions can publish the static site to GitHub Pages after pushing to `main`.
+Open repository settings:
+
+```text
+Settings -> Pages -> Build and deployment -> Source: Deploy from a branch
+Branch: main
+Folder: /root
+```
+
+GitHub will publish the site at `https://skrafer.github.io/LOveRep/`.
